@@ -1,0 +1,148 @@
+@import url('https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400;1,700&family=Noto+Sans+Arabic:wght@100..900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Warm Paper Theme */
+  --background: 36 29% 97%; /* #FAF9F6 - Off-white paper */
+  --foreground: 210 11% 15%; /* #22262A - Ink black */
+  
+  --card: 0 0% 100%;
+  --card-foreground: 210 11% 15%;
+  
+  --popover: 0 0% 100%;
+  --popover-foreground: 210 11% 15%;
+  
+  --primary: 24 57% 50%; /* #C87539 - Terracotta/Leather binding color */
+  --primary-foreground: 36 29% 97%;
+  
+  --secondary: 36 20% 92%;
+  --secondary-foreground: 210 11% 15%;
+  
+  --muted: 36 20% 90%;
+  --muted-foreground: 25 5% 45%;
+  
+  --accent: 24 57% 95%;
+  --accent-foreground: 24 57% 40%;
+  
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 210 40% 98%;
+
+  --border: 36 10% 85%;
+  --input: 36 10% 85%;
+  --ring: 24 57% 50%;
+
+  --radius: 0.5rem;
+
+  --font-heading: 'Amiri', serif;
+  --font-body: 'Amiri', serif;
+  --font-ui: 'Noto Sans Arabic', sans-serif;
+}
+
+.dark {
+  --background: 210 11% 7%;
+  --foreground: 36 29% 97%;
+
+  --card: 210 11% 10%;
+  --card-foreground: 36 29% 97%;
+
+  --popover: 210 11% 10%;
+  --popover-foreground: 36 29% 97%;
+
+  --primary: 24 57% 50%;
+  --primary-foreground: 36 29% 97%;
+
+  --secondary: 210 11% 15%;
+  --secondary-foreground: 36 29% 97%;
+
+  --muted: 210 11% 15%;
+  --muted-foreground: 215 20.2% 65.1%;
+
+  --accent: 210 11% 15%;
+  --accent-foreground: 36 29% 97%;
+
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 36 29% 97%;
+
+  --border: 210 11% 20%;
+  --input: 210 11% 20%;
+  --ring: 24 57% 50%;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  
+  html {
+    direction: rtl;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: var(--font-body);
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+    @apply font-bold tracking-tight;
+  }
+
+  /* UI elements that need better readability at small sizes */
+  button, input, select, textarea, label, .ui-font {
+    font-family: var(--font-ui);
+  }
+}
+
+/* Custom Scrollbar for a cleaner look */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-border rounded-full hover:bg-muted-foreground/30 transition-colors;
+}
+
+/* Print Styles for PDF Export */
+@media print {
+  @page {
+    margin: 2cm;
+    size: A4;
+  }
+
+  body {
+    background: white;
+    color: black;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  .print-break-before {
+    page-break-before: always;
+  }
+
+  .print-content {
+    font-size: 14pt;
+    line-height: 1.8;
+    text-align: justify;
+  }
+}
+
+/* Paper texture effect overlay */
+.paper-texture {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  opacity: 0.4;
+}

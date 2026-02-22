@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>راوي - مساعد الكتابة الإبداعية</title>
+    <meta name="description" content="تطبيق راوي لمساعدتك في كتابة ورواية قصصك باللغة العربية مع دعم الذكاء الاصطناعي">
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Noto+Sans+Arabic:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#C87539',
+                        background: '#FAF9F6',
+                        foreground: '#22262A',
+                    },
+                    fontFamily: {
+                        amiri: ['Amiri', 'serif'],
+                        noto: ['Noto Sans Arabic', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Amiri', serif; background-color: #FAF9F6; }
+        .ui-font { font-family: 'Noto Sans Arabic', sans-serif; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center p-4">
+    <div class="max-w-4xl w-full bg-white rounded-2xl shadow-xl overflow-hidden border border-stone-100">
+        <div class="p-8 md:p-12 text-center space-y-6">
+            <h1 class="text-6xl font-bold text-primary mb-4">راوي</h1>
+            <p class="text-xl text-stone-600 leading-relaxed max-w-2xl mx-auto">
+                مرحباً بك في النسخة التجريبية من تطبيق **راوي**. هذا التطبيق مصمم ليكون رفيقك في رحلة الكتابة الإبداعية باللغة العربية.
+            </p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 py-8">
+                <div class="p-6 bg-stone-50 rounded-xl border border-stone-100">
+                    <div class="text-primary text-3xl mb-2">✍️</div>
+                    <h3 class="font-bold text-lg mb-2 ui-font">إدارة الفصول</h3>
+                    <p class="text-sm text-stone-500 ui-font">تنظيم روايتك في فصول متسلسلة مع واجهة كتابة مريحة.</p>
+                </div>
+                <div class="p-6 bg-stone-50 rounded-xl border border-stone-100">
+                    <div class="text-primary text-3xl mb-2">👤</div>
+                    <h3 class="font-bold text-lg mb-2 ui-font">ملفات الشخصيات</h3>
+                    <p class="text-sm text-stone-500 ui-font">بناء وتطوير شخصياتك بعمق مع تفاصيل أدوارهم وسماتهم.</p>
+                </div>
+                <div class="p-6 bg-stone-50 rounded-xl border border-stone-100">
+                    <div class="text-primary text-3xl mb-2">🤖</div>
+                    <h3 class="font-bold text-lg mb-2 ui-font">ذكاء اصطناعي</h3>
+                    <p class="text-sm text-stone-500 ui-font">مساعد ذكي لاقتراح الحبكات وتوليد نصوص الفصول باحترافية.</p>
+                </div>
+            </div>
+
+            <div class="space-y-4">
+                <a href="https://replit.com" class="inline-block bg-primary text-white px-10 py-4 rounded-xl font-bold text-lg shadow-lg hover:opacity-90 transition-all">
+                    ابدأ الكتابة الآن على Replit
+                </a>
+                <p class="text-sm text-stone-400 ui-font">
+                    ملاحظة: ليعمل التطبيق بكامل طاقته (قاعدة البيانات والذكاء الاصطناعي)، يجب تشغيله عبر منصة Replit.
+                </p>
+            </div>
+        </div>
+        
+        <div class="bg-stone-50 p-6 border-t border-stone-100 text-center">
+            <p class="text-stone-400 text-xs ui-font">تم التطوير باستخدام تقنيات الذكاء الاصطناعي الحديثة لدعم المحتوى العربي</p>
+        </div>
+    </div>
+</body>
+</html>
