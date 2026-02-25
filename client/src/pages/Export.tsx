@@ -34,7 +34,38 @@ export default function Export() {
         letterRendering: true,
         scrollX: 0,
         scrollY: 0,
-        windowWidth: document.documentElement.offsetWidth
+        windowWidth: 1200,
+        logging: false,
+        onclone: (clonedDoc: Document) => {
+          const clonedElement = clonedDoc.getElementById('printable-content');
+          if (clonedElement) {
+            clonedElement.style.paddingTop = '20px';
+            clonedElement.style.marginTop = '0px';
+            clonedElement.style.position = 'relative';
+            clonedElement.style.display = 'block';
+            clonedElement.style.backgroundColor = 'white';
+            clonedElement.style.width = '1200px';
+            
+            // Critical fix for white pages: ensure text color is explicit and background is white
+            clonedElement.style.color = 'black';
+            clonedDoc.body.style.backgroundColor = 'white';
+            
+            const allElements = clonedElement.getElementsByTagName('*');
+            for (let i = 0; i < allElements.length; i++) {
+              const el = allElements[i] as HTMLElement;
+              el.style.color = 'black';
+              el.style.backgroundColor = 'transparent'; // Ensure backgrounds don't overlap white text
+              // Fix for potential visibility issues
+              el.style.visibility = 'visible';
+              el.style.opacity = '1';
+            }
+
+            const images = clonedElement.getElementsByTagName('img');
+            for (let i = 0; i < images.length; i++) {
+              images[i].style.display = 'block';
+            }
+          }
+        }
       },
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
       pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
