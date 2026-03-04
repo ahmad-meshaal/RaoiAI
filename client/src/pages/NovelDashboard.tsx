@@ -1,4 +1,4 @@
-import { useNovel, useChapters, useCharacters, useCreateChapter, useDeleteNovel, useUpdateChapter } from "@/hooks/use-novels";
+import { useNovel, useChapters, useCharacters, useCreateChapter, useDeleteNovel, useUpdateChapter, useUpdateNovel } from "@/hooks/use-novels";
 import { useGeneratePlot } from "@/hooks/use-ai";
 import { Layout } from "@/components/ui/Layout";
 import { LoadingPage, LoadingSpinner } from "@/components/ui/Loading";
@@ -13,11 +13,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { 
   BookOpen, Users, Wand2, FileText, ChevronLeft, Trash2, 
-  Printer, PenTool, MoreVertical 
+  Printer, PenTool, MoreVertical, Globe 
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import { useToast } from "@/hooks/use-toast";
 
 export default function NovelDashboard({ params }: { params: { id: string } }) {
   const id = parseInt(params.id);
@@ -26,9 +27,26 @@ export default function NovelDashboard({ params }: { params: { id: string } }) {
   const { data: characters } = useCharacters(id);
   const [, setLocation] = useLocation();
   const deleteNovel = useDeleteNovel();
+  const updateNovel = useUpdateNovel();
+  const { toast } = useToast();
 
   if (isNovelLoading || isChaptersLoading) return <LoadingPage />;
   if (!novel) return <div className="p-8 text-center">الرواية غير موجودة</div>;
+
+  const handlePublish = () => {
+    const isPublished = novel.status === "published";
+    updateNovel.mutate({ 
+      id: novel.id, 
+      novel: { status: isPublished ? "draft" : "published" } 
+    }, {
+      onSuccess: () => {
+        toast({
+          title: isPublished ? "تم إلغاء النشر" : "تم نشر الرواية بنجاح",
+          description: isPublished ? "الرواية الآن في وضع المسودة" : "يمكن للجميع الآن رؤية روايتك في صفحة الروايات",
+        });
+      }
+    });
+  };
 
   return (
     <Layout>
@@ -43,6 +61,12 @@ export default function NovelDashboard({ params }: { params: { id: string } }) {
                   الرئيسية <ChevronLeft className="h-3 w-3" />
                 </Link>
                 <Badge variant="outline" className="ui-font bg-background/50">{novel.genre}</Badge>
+                {novel.status === "published" && (
+                  <Badge className="bg-green-500 hover:bg-green-600 border-none gap-1">
+                    <Globe className="h-3 w-3" />
+                    منشور
+                  </Badge>
+                )}
               </div>
               <h1 className="text-5xl font-bold text-foreground mb-4 leading-tight">{novel.title}</h1>
               <p className="text-muted-foreground max-w-2xl text-lg leading-relaxed opacity-90">
@@ -51,6 +75,15 @@ export default function NovelDashboard({ params }: { params: { id: string } }) {
             </div>
             
             <div className="flex gap-3">
+              <Button 
+                onClick={handlePublish}
+                variant={novel.status === "published" ? "outline" : "default"}
+                className={cn("gap-2 shadow-sm", novel.status === "published" ? "border-green-200 text-green-700 hover:bg-green-50" : "")}
+                disabled={updateNovel.isPending}
+              >
+                <Globe className="h-4 w-4" />
+                {novel.status === "published" ? "إلغاء النشر" : "نشر الرواية"}
+              </Button>
               <Link href={`/novels/${id}/export`}>
                 <Button variant="outline" className="gap-2 shadow-sm">
                   <Printer className="h-4 w-4" />

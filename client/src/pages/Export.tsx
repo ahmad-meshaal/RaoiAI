@@ -29,13 +29,13 @@ export default function Export() {
       filename: `${novel.title}.pdf`,
       image: { type: 'jpeg', quality: 0.98 },
       html2canvas: { 
-        scale: 2, 
+        scale: 1.5, // Reduced scale for very large files to prevent memory issues
         useCORS: true, 
         letterRendering: false,
         scrollX: 0,
         scrollY: 0,
         windowWidth: 1200,
-        logging: true,
+        logging: false,
         onclone: (clonedDoc: Document) => {
           const clonedElement = clonedDoc.getElementById('printable-content');
           if (clonedElement) {

@@ -10,12 +10,14 @@ import Editor from "@/pages/Editor";
 import Characters from "@/pages/Characters";
 import Export from "@/pages/Export";
 import Settings from "@/pages/Settings";
+import PublicNovels from "@/pages/PublicNovels";
 import NotFound from "@/pages/not-found";
 
 function Router() {
   return (
     <Switch>
       <Route path="/" component={Home} />
+      <Route path="/novels" component={PublicNovels} />
       <Route path="/novels/:id" component={NovelDashboard} />
       <Route path="/novels/:id/characters" component={Characters} />
       <Route path="/novels/:novelId/editor/:chapterId" component={Editor} />

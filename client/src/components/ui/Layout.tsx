@@ -48,6 +48,18 @@ export function Layout({ children, showSidebar = true }: LayoutProps) {
               <Home className="h-5 w-5" />
               <span>الرئيسية</span>
             </Link>
+            <Link 
+              href="/novels" 
+              className={cn(
+                "flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ui-font font-medium",
+                location === "/novels" 
+                  ? "bg-primary/10 text-primary" 
+                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
+              )}
+            >
+              <BookOpen className="h-5 w-5" />
+              <span>المكتبة</span>
+            </Link>
             <div className="px-4 py-2 mt-4 text-xs font-bold text-muted-foreground uppercase tracking-wider ui-font">
               أدوات الكاتب
             </div>
