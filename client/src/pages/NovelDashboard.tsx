@@ -33,16 +33,40 @@ export default function NovelDashboard({ params }: { params: { id: string } }) {
   if (isNovelLoading || isChaptersLoading) return <LoadingPage />;
   if (!novel) return <div className="p-8 text-center">الرواية غير موجودة</div>;
 
+  const [publishDialogOpen, setPublishDialogOpen] = useState(false);
+  const [publishData, setPublishData] = useState({
+    title: novel.title,
+    synopsis: novel.synopsis || "",
+    coverUrl: novel.coverUrl || ""
+  });
+
   const handlePublish = () => {
-    const isPublished = novel.status === "published";
     updateNovel.mutate({ 
       id: novel.id, 
-      novel: { status: isPublished ? "draft" : "published" } 
+      novel: { 
+        ...publishData,
+        status: "published" 
+      } 
+    }, {
+      onSuccess: () => {
+        setPublishDialogOpen(false);
+        toast({
+          title: "تم نشر الرواية بنجاح",
+          description: "يمكن للجميع الآن رؤية روايتك في صفحة الروايات",
+        });
+      }
+    });
+  };
+
+  const handleUnpublish = () => {
+    updateNovel.mutate({ 
+      id: novel.id, 
+      novel: { status: "draft" } 
     }, {
       onSuccess: () => {
         toast({
-          title: isPublished ? "تم إلغاء النشر" : "تم نشر الرواية بنجاح",
-          description: isPublished ? "الرواية الآن في وضع المسودة" : "يمكن للجميع الآن رؤية روايتك في صفحة الروايات",
+          title: "تم إلغاء النشر",
+          description: "الرواية الآن في وضع المسودة",
         });
       }
     });
@@ -55,35 +79,111 @@ export default function NovelDashboard({ params }: { params: { id: string } }) {
         <header className="bg-card border-b py-12 relative overflow-hidden">
           <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-primary via-primary/80 to-primary/40" />
           <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-end gap-6 px-4 sm:px-6 lg:px-8">
-            <div>
-              <div className="flex items-center gap-2 mb-4">
-                <Link href="/" className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-1 text-sm ui-font">
-                  الرئيسية <ChevronLeft className="h-3 w-3" />
-                </Link>
-                <Badge variant="outline" className="ui-font bg-background/50">{novel.genre}</Badge>
-                {novel.status === "published" && (
-                  <Badge className="bg-green-500 hover:bg-green-600 border-none gap-1">
-                    <Globe className="h-3 w-3" />
-                    منشور
-                  </Badge>
-                )}
+            <div className="flex gap-6 items-start">
+              {novel.coverUrl && (
+                <img 
+                  src={novel.coverUrl} 
+                  alt={novel.title} 
+                  className="w-32 h-48 object-cover rounded-lg shadow-md border bg-muted"
+                />
+              )}
+              <div>
+                <div className="flex items-center gap-2 mb-4">
+                  <Link href="/" className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-1 text-sm ui-font">
+                    الرئيسية <ChevronLeft className="h-3 w-3" />
+                  </Link>
+                  <Badge variant="outline" className="ui-font bg-background/50">{novel.genre}</Badge>
+                  {novel.status === "published" && (
+                    <Badge className="bg-green-500 hover:bg-green-600 border-none gap-1">
+                      <Globe className="h-3 w-3" />
+                      منشور
+                    </Badge>
+                  )}
+                </div>
+                <h1 className="text-5xl font-bold text-foreground mb-4 leading-tight">{novel.title}</h1>
+                <p className="text-muted-foreground max-w-2xl text-lg leading-relaxed opacity-90">
+                  {novel.synopsis}
+                </p>
               </div>
-              <h1 className="text-5xl font-bold text-foreground mb-4 leading-tight">{novel.title}</h1>
-              <p className="text-muted-foreground max-w-2xl text-lg leading-relaxed opacity-90">
-                {novel.synopsis}
-              </p>
             </div>
             
             <div className="flex gap-3">
-              <Button 
-                onClick={handlePublish}
-                variant={novel.status === "published" ? "outline" : "default"}
-                className={cn("gap-2 shadow-sm", novel.status === "published" ? "border-green-200 text-green-700 hover:bg-green-50" : "")}
-                disabled={updateNovel.isPending}
-              >
-                <Globe className="h-4 w-4" />
-                {novel.status === "published" ? "إلغاء النشر" : "نشر الرواية"}
-              </Button>
+              {novel.status === "published" ? (
+                <Button 
+                  onClick={handleUnpublish}
+                  variant="outline"
+                  className="gap-2 shadow-sm border-green-200 text-green-700 hover:bg-green-50"
+                  disabled={updateNovel.isPending}
+                >
+                  <Globe className="h-4 w-4" />
+                  إلغاء النشر
+                </Button>
+              ) : (
+                <Dialog open={publishDialogOpen} onOpenChange={setPublishDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button className="gap-2 shadow-sm">
+                      <Globe className="h-4 w-4" />
+                      نشر الرواية
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="ui-font sm:max-w-[500px]">
+                    <DialogHeader>
+                      <DialogTitle className="text-right text-2xl">نشر الرواية</DialogTitle>
+                      <DialogDescription className="text-right">
+                        أكمل بيانات الرواية لتظهر بشكل احترافي في المكتبة العامة.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-6 py-4">
+                      <div className="space-y-2">
+                        <Label className="text-right block">اسم الرواية</Label>
+                        <Input 
+                          value={publishData.title} 
+                          onChange={e => setPublishData(prev => ({ ...prev, title: e.target.value }))}
+                          className="text-right"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="text-right block">وصف الرواية (السينوبسيس)</Label>
+                        <Textarea 
+                          value={publishData.synopsis} 
+                          onChange={e => setPublishData(prev => ({ ...prev, synopsis: e.target.value }))}
+                          className="text-right min-h-[120px]"
+                          placeholder="اكتب نبذة مشوقة عن روايتك هنا..."
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="text-right block">رابط صورة الغلاف</Label>
+                        <Input 
+                          value={publishData.coverUrl} 
+                          onChange={e => setPublishData(prev => ({ ...prev, coverUrl: e.target.value }))}
+                          placeholder="https://example.com/cover.jpg"
+                          className="text-left ltr"
+                        />
+                      </div>
+                      {publishData.coverUrl && (
+                        <div className="flex justify-center pt-2">
+                          <img 
+                            src={publishData.coverUrl} 
+                            alt="Preview" 
+                            className="w-24 h-36 object-cover rounded border shadow-sm"
+                            onError={(e) => (e.currentTarget.style.display = 'none')}
+                          />
+                        </div>
+                      )}
+                    </div>
+                    <DialogFooter className="sm:justify-start gap-2">
+                      <Button 
+                        onClick={handlePublish} 
+                        disabled={updateNovel.isPending || !publishData.title || !publishData.synopsis}
+                        className="w-full sm:w-auto"
+                      >
+                        {updateNovel.isPending ? "جاري النشر..." : "تأكيد النشر"}
+                      </Button>
+                      <Button variant="ghost" onClick={() => setPublishDialogOpen(false)}>إلغاء</Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+              )}
               <Link href={`/novels/${id}/export`}>
                 <Button variant="outline" className="gap-2 shadow-sm">
                   <Printer className="h-4 w-4" />

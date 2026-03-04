@@ -33,22 +33,35 @@ export default function PublicNovels() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {publishedNovels.map((novel) => (
-              <Card key={novel.id} className="group hover:shadow-xl transition-all duration-300 border-primary/10 overflow-hidden">
-                <CardHeader className="pb-4">
-                  <div className="flex justify-between items-start mb-2">
-                    <Badge variant="secondary" className="bg-primary/10 text-primary hover:bg-primary/20 transition-colors">
+              <Card key={novel.id} className="group hover:shadow-xl transition-all duration-300 border-primary/10 overflow-hidden flex flex-col">
+                <div className="aspect-[2/3] w-full bg-muted relative overflow-hidden">
+                  {novel.coverUrl ? (
+                    <img 
+                      src={novel.coverUrl} 
+                      alt={novel.title} 
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-muted-foreground/20">
+                      <BookOpen className="h-20 w-20" />
+                    </div>
+                  )}
+                  <div className="absolute top-4 right-4">
+                    <Badge variant="secondary" className="bg-white/90 backdrop-blur shadow-sm text-primary hover:bg-white transition-colors">
                       {novel.genre}
                     </Badge>
                   </div>
-                  <CardTitle className="text-2xl font-bold group-hover:text-primary transition-colors leading-tight">
+                </div>
+                <CardHeader className="pb-4">
+                  <CardTitle className="text-2xl font-bold group-hover:text-primary transition-colors leading-tight line-clamp-1">
                     {novel.title}
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="flex-1 flex flex-col">
                   <p className="text-muted-foreground line-clamp-3 mb-6 leading-relaxed h-20">
                     {novel.synopsis || "لا يوجد ملخص متاح لهذه الرواية."}
                   </p>
-                  <div className="flex items-center justify-between pt-4 border-t border-primary/5">
+                  <div className="mt-auto pt-4 border-t border-primary/5 flex items-center justify-between">
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <User className="h-4 w-4" />
                       <span>كاتب مجهول</span>

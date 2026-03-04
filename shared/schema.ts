@@ -8,6 +8,7 @@ export const novels = pgTable("novels", {
   title: text("title").notNull(),
   genre: text("genre").notNull(),
   synopsis: text("synopsis"),
+  coverUrl: text("cover_url"),
   status: text("status").default("draft"), // draft, published
   createdAt: timestamp("created_at").defaultNow(),
 });
