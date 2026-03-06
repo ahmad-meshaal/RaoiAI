@@ -4,8 +4,9 @@ import { LoadingPage } from "@/components/ui/Loading";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { BookOpen, User } from "lucide-react";
+import { BookOpen, User, Eye, ThumbsUp, ThumbsDown } from "lucide-react";
 import { Link } from "wouter";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 
 export default function PublicNovels() {
   const { data: novels, isLoading } = useNovels();
@@ -13,6 +14,11 @@ export default function PublicNovels() {
   if (isLoading) return <LoadingPage />;
 
   const publishedNovels = novels?.filter(n => n.status === "published") || [];
+
+  const handleAction = async (id: number, action: 'view' | 'like' | 'dislike', increment = true) => {
+    await apiRequest("POST", `/api/novels/${id}/${action}`, { increment });
+    queryClient.invalidateQueries({ queryKey: ["/api/novels"] });
+  };
 
   return (
     <Layout>
@@ -61,12 +67,34 @@ export default function PublicNovels() {
                   <p className="text-muted-foreground line-clamp-3 mb-6 leading-relaxed h-20">
                     {novel.synopsis || "لا يوجد ملخص متاح لهذه الرواية."}
                   </p>
+                  
+                  <div className="flex items-center gap-4 mb-6 text-sm text-muted-foreground">
+                    <div className="flex items-center gap-1">
+                      <Eye className="h-4 w-4" />
+                      <span>{novel.views || 0}</span>
+                    </div>
+                    <button 
+                      onClick={() => handleAction(novel.id, 'like')}
+                      className="flex items-center gap-1 hover:text-primary transition-colors"
+                    >
+                      <ThumbsUp className="h-4 w-4" />
+                      <span>{novel.likes || 0}</span>
+                    </button>
+                    <button 
+                      onClick={() => handleAction(novel.id, 'dislike')}
+                      className="flex items-center gap-1 hover:text-destructive transition-colors"
+                    >
+                      <ThumbsDown className="h-4 w-4" />
+                      <span>{novel.dislikes || 0}</span>
+                    </button>
+                  </div>
+
                   <div className="mt-auto pt-4 border-t border-primary/5 flex items-center justify-between">
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <User className="h-4 w-4" />
                       <span>كاتب مجهول</span>
                     </div>
-                    <Link href={`/novels/${novel.id}/export`}>
+                    <Link href={`/novels/${novel.id}/export`} onClick={() => handleAction(novel.id, 'view')}>
                       <Button variant="ghost" className="text-primary hover:bg-primary/5 gap-2">
                         قراءة الرواية
                         <BookOpen className="h-4 w-4" />

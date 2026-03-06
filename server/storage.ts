@@ -28,9 +28,39 @@ export interface IStorage {
   createChapter(chapter: InsertChapter): Promise<Chapter>;
   updateChapter(id: number, chapter: UpdateChapterRequest): Promise<Chapter>;
   deleteChapter(id: number): Promise<void>;
+  
+  // Stats
+  incrementViews(id: number): Promise<void>;
+  updateLikes(id: number, increment: boolean): Promise<void>;
+  updateDislikes(id: number, increment: boolean): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
+  // ... (previous methods)
+
+  async incrementViews(id: number): Promise<void> {
+    const [novel] = await db.select().from(novels).where(eq(novels.id, id));
+    if (novel) {
+      await db.update(novels).set({ views: (novel.views || 0) + 1 }).where(eq(novels.id, id));
+    }
+  }
+
+  async updateLikes(id: number, increment: boolean): Promise<void> {
+    const [novel] = await db.select().from(novels).where(eq(novels.id, id));
+    if (novel) {
+      const current = novel.likes || 0;
+      await db.update(novels).set({ likes: increment ? current + 1 : Math.max(0, current - 1) }).where(eq(novels.id, id));
+    }
+  }
+
+  async updateDislikes(id: number, increment: boolean): Promise<void> {
+    const [novel] = await db.select().from(novels).where(eq(novels.id, id));
+    if (novel) {
+      const current = novel.dislikes || 0;
+      await db.update(novels).set({ dislikes: increment ? current + 1 : Math.max(0, current - 1) }).where(eq(novels.id, id));
+    }
+  }
+
   // Novels
   async getNovels(): Promise<Novel[]> {
     return await db.select().from(novels).orderBy(desc(novels.createdAt));

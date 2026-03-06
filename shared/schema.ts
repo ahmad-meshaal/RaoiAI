@@ -9,6 +9,9 @@ export const novels = pgTable("novels", {
   genre: text("genre").notNull(),
   synopsis: text("synopsis"),
   coverUrl: text("cover_url"),
+  views: integer("views").default(0),
+  likes: integer("likes").default(0),
+  dislikes: integer("dislikes").default(0),
   status: text("status").default("draft"), // draft, published
   createdAt: timestamp("created_at").defaultNow(),
 });

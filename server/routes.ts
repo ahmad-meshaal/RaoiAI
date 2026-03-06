@@ -60,6 +60,21 @@ export async function registerRoutes(
     res.status(204).send();
   });
 
+  app.post("/api/novels/:id/view", async (req, res) => {
+    await storage.incrementViews(Number(req.params.id));
+    res.status(204).send();
+  });
+
+  app.post("/api/novels/:id/like", async (req, res) => {
+    await storage.updateLikes(Number(req.params.id), req.body.increment);
+    res.status(204).send();
+  });
+
+  app.post("/api/novels/:id/dislike", async (req, res) => {
+    await storage.updateDislikes(Number(req.params.id), req.body.increment);
+    res.status(204).send();
+  });
+
   // Characters
   app.get(api.characters.list.path, async (req, res) => {
     const characters = await storage.getCharacters(Number(req.params.novelId));

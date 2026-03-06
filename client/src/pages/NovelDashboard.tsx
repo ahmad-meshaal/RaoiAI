@@ -281,17 +281,35 @@ export default function NovelDashboard({ params }: { params: { id: string } }) {
                     </CardHeader>
                     <CardContent className="space-y-4">
                       <div className="flex justify-between items-center">
-                        <span className="text-muted-foreground ui-font">عدد الفصول</span>
-                        <span className="font-bold font-mono">{chapters?.length || 0}</span>
+                        <span className="text-muted-foreground ui-font">المشاهدات</span>
+                        <span className="font-bold font-mono flex items-center gap-1">
+                          <Eye className="h-3 w-3" />
+                          {novel.views || 0}
+                        </span>
                       </div>
                       <div className="flex justify-between items-center">
-                        <span className="text-muted-foreground ui-font">عدد الشخصيات</span>
-                        <span className="font-bold font-mono">{characters?.length || 0}</span>
-                      </div>
-                      <div className="pt-4 border-t border-primary/10">
-                        <span className="text-xs text-muted-foreground block text-center ui-font">
-                          آخر تحديث: {new Date().toLocaleDateString('ar-EG')}
+                        <span className="text-muted-foreground ui-font">الإعجابات</span>
+                        <span className="font-bold font-mono flex items-center gap-1 text-green-600">
+                          <ThumbsUp className="h-3 w-3" />
+                          {novel.likes || 0}
                         </span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-muted-foreground ui-font">عدم الإعجاب</span>
+                        <span className="font-bold font-mono flex items-center gap-1 text-destructive">
+                          <ThumbsDown className="h-3 w-3" />
+                          {novel.dislikes || 0}
+                        </span>
+                      </div>
+                      <div className="pt-4 border-t border-primary/10 space-y-2">
+                        <div className="flex justify-between items-center">
+                          <span className="text-muted-foreground ui-font text-xs">عدد الفصول</span>
+                          <span className="font-bold font-mono text-xs">{chapters?.length || 0}</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-muted-foreground ui-font text-xs">عدد الشخصيات</span>
+                          <span className="font-bold font-mono text-xs">{characters?.length || 0}</span>
+                        </div>
                       </div>
                     </CardContent>
                   </Card>
