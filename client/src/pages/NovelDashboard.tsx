@@ -16,7 +16,7 @@ import {
   Printer, PenTool, MoreVertical, Globe 
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 
@@ -30,15 +30,26 @@ export default function NovelDashboard({ params }: { params: { id: string } }) {
   const updateNovel = useUpdateNovel();
   const { toast } = useToast();
 
-  if (isNovelLoading || isChaptersLoading) return <LoadingPage />;
-  if (!novel) return <div className="p-8 text-center">الرواية غير موجودة</div>;
-
   const [publishDialogOpen, setPublishDialogOpen] = useState(false);
   const [publishData, setPublishData] = useState({
-    title: novel.title,
-    synopsis: novel.synopsis || "",
-    coverUrl: novel.coverUrl || ""
+    title: "",
+    synopsis: "",
+    coverUrl: ""
   });
+
+  // Use useEffect to sync publishData when novel data is loaded
+  useEffect(() => {
+    if (novel) {
+      setPublishData({
+        title: novel.title,
+        synopsis: novel.synopsis || "",
+        coverUrl: novel.coverUrl || ""
+      });
+    }
+  }, [novel]);
+
+  if (isNovelLoading || isChaptersLoading) return <LoadingPage />;
+  if (!novel) return <div className="p-8 text-center">الرواية غير موجودة</div>;
 
   const handlePublish = () => {
     updateNovel.mutate({ 
