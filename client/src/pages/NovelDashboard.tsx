@@ -13,7 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { 
   BookOpen, Users, Wand2, FileText, ChevronLeft, Trash2, 
-  Printer, PenTool, MoreVertical, Globe 
+  Printer, PenTool, MoreVertical, Globe, Eye, ThumbsUp, ThumbsDown 
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { useState, useEffect } from "react";
