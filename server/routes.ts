@@ -1,8 +1,10 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
+import { db } from "./db";
 import { api } from "@shared/routes";
 import { z } from "zod";
+import { novels } from "@shared/schema";
 import { generatePlot, generateChapter } from "./ai_service";
 import { registerChatRoutes } from "./replit_integrations/chat";
 import { registerImageRoutes } from "./replit_integrations/image";
@@ -19,8 +21,8 @@ export async function registerRoutes(
   
   // Novels
   app.get(api.novels.list.path, async (req, res) => {
-    const novels = await storage.getNovels();
-    res.json(novels);
+    const allNovels = await storage.getNovels();
+    res.json(allNovels);
   });
 
   app.get(api.novels.get.path, async (req, res) => {
@@ -73,6 +75,50 @@ export async function registerRoutes(
   app.post("/api/novels/:id/dislike", async (req, res) => {
     await storage.updateDislikes(Number(req.params.id), req.body.increment);
     res.status(204).send();
+  });
+
+  // Auth Routes
+  app.post("/api/auth/signup", async (req, res) => {
+    try {
+      const { username, email, password } = req.body;
+      if (!username || !email || !password) {
+        return res.status(400).json({ message: "Missing required fields" });
+      }
+      const { registerUser } = await import("./auth");
+      const user = await registerUser(username, email, password);
+      req.session!.userId = user.id;
+      res.status(201).json({ id: user.id, username: user.username, email: user.email });
+    } catch (err) {
+      res.status(400).json({ message: (err as Error).message });
+    }
+  });
+
+  app.post("/api/auth/login", async (req, res) => {
+    try {
+      const { username, password } = req.body;
+      if (!username || !password) {
+        return res.status(400).json({ message: "Missing credentials" });
+      }
+      const { loginUser } = await import("./auth");
+      const user = await loginUser(username, password);
+      if (!user) return res.status(401).json({ message: "Invalid credentials" });
+      req.session!.userId = user.id;
+      res.json({ id: user.id, username: user.username, email: user.email });
+    } catch (err) {
+      res.status(500).json({ message: "Server error" });
+    }
+  });
+
+  app.post("/api/auth/logout", async (req, res) => {
+    req.session?.destroy(() => {
+      res.status(204).send();
+    });
+  });
+
+  app.get("/api/auth/me", async (req, res) => {
+    if (!req.session?.userId) return res.status(401).json({ message: "Not authenticated" });
+    const userId = req.session.userId;
+    res.json({ id: userId });
   });
 
   // Characters

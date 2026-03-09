@@ -5,6 +5,8 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
 import Home from "@/pages/Home";
+import Login from "@/pages/Login";
+import Signup from "@/pages/Signup";
 import NovelDashboard from "@/pages/NovelDashboard";
 import Editor from "@/pages/Editor";
 import Characters from "@/pages/Characters";
@@ -16,6 +18,8 @@ import NotFound from "@/pages/not-found";
 function Router() {
   return (
     <Switch>
+      <Route path="/login" component={Login} />
+      <Route path="/signup" component={Signup} />
       <Route path="/" component={Home} />
       <Route path="/novels" component={PublicNovels} />
       <Route path="/novels/:id" component={NovelDashboard} />

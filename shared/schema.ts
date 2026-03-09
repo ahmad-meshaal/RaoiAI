@@ -1,7 +1,15 @@
-import { pgTable, text, serial, integer, timestamp, jsonb } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, timestamp, jsonb, varchar, boolean } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 import { relations } from "drizzle-orm";
+
+export const users = pgTable("users", {
+  id: serial("id").primaryKey(),
+  username: varchar("username", { length: 255 }).notNull().unique(),
+  email: varchar("email", { length: 255 }).notNull().unique(),
+  passwordHash: text("password_hash").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
 
 export const novels = pgTable("novels", {
   id: serial("id").primaryKey(),
@@ -36,6 +44,16 @@ export const chapters = pgTable("chapters", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+export const userInteractions = pgTable("user_interactions", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull(),
+  novelId: integer("novel_id").notNull(),
+  viewed: boolean("viewed").default(false),
+  liked: boolean("liked").default(false),
+  disliked: boolean("disliked").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 export const novelsRelations = relations(novels, ({ many }) => ({
   characters: many(characters),
   chapters: many(chapters),
@@ -58,6 +76,7 @@ export const chaptersRelations = relations(chapters, ({ one }) => ({
 export const insertNovelSchema = createInsertSchema(novels).omit({ id: true, createdAt: true });
 export const insertCharacterSchema = createInsertSchema(characters).omit({ id: true, createdAt: true });
 export const insertChapterSchema = createInsertSchema(chapters).omit({ id: true, createdAt: true });
+export const insertUserSchema = createInsertSchema(users).omit({ id: true, createdAt: true });
 
 export type Novel = typeof novels.$inferSelect;
 export type InsertNovel = z.infer<typeof insertNovelSchema>;
@@ -65,6 +84,9 @@ export type Character = typeof characters.$inferSelect;
 export type InsertCharacter = z.infer<typeof insertCharacterSchema>;
 export type Chapter = typeof chapters.$inferSelect;
 export type InsertChapter = z.infer<typeof insertChapterSchema>;
+export type User = typeof users.$inferSelect;
+export type InsertUser = z.infer<typeof insertUserSchema>;
+export type UserInteraction = typeof userInteractions.$inferSelect;
 
 export type CreateNovelRequest = InsertNovel;
 export type UpdateNovelRequest = Partial<InsertNovel>;

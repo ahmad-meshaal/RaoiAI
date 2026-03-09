@@ -1,13 +1,19 @@
 import { db } from "./db";
 import {
-  novels, characters, chapters,
+  novels, characters, chapters, users, userInteractions,
   type Novel, type InsertNovel, type UpdateNovelRequest,
   type Character, type InsertCharacter, type UpdateCharacterRequest,
-  type Chapter, type InsertChapter, type UpdateChapterRequest
+  type Chapter, type InsertChapter, type UpdateChapterRequest,
+  type User, type InsertUser, type UserInteraction
 } from "@shared/schema";
-import { eq, desc, asc } from "drizzle-orm";
+import { eq, desc, asc, and } from "drizzle-orm";
 
 export interface IStorage {
+  // Users
+  createUser(user: InsertUser & { passwordHash: string }): Promise<User>;
+  getUserByUsername(username: string): Promise<User | undefined>;
+  getUserByEmail(email: string): Promise<User | undefined>;
+
   // Novels
   getNovels(): Promise<Novel[]>;
   getNovel(id: number): Promise<Novel | undefined>;
@@ -29,10 +35,9 @@ export interface IStorage {
   updateChapter(id: number, chapter: UpdateChapterRequest): Promise<Chapter>;
   deleteChapter(id: number): Promise<void>;
   
-  // Stats
-  incrementViews(id: number): Promise<void>;
-  updateLikes(id: number, increment: boolean): Promise<void>;
-  updateDislikes(id: number, increment: boolean): Promise<void>;
+  // Interactions
+  getUserInteraction(userId: number, novelId: number): Promise<UserInteraction | undefined>;
+  updateUserInteraction(userId: number, novelId: number, updates: Partial<UserInteraction>): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -131,6 +136,45 @@ export class DatabaseStorage implements IStorage {
 
   async deleteChapter(id: number): Promise<void> {
     await db.delete(chapters).where(eq(chapters.id, id));
+  }
+
+  // Users
+  async createUser(user: InsertUser & { passwordHash: string }): Promise<User> {
+    const [newUser] = await db.insert(users).values(user).returning();
+    return newUser;
+  }
+
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user;
+  }
+
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.email, email));
+    return user;
+  }
+
+  // Interactions
+  async getUserInteraction(userId: number, novelId: number): Promise<UserInteraction | undefined> {
+    const [interaction] = await db.select().from(userInteractions).where(
+      and(eq(userInteractions.userId, userId), eq(userInteractions.novelId, novelId))
+    );
+    return interaction;
+  }
+
+  async updateUserInteraction(userId: number, novelId: number, updates: Partial<UserInteraction>): Promise<void> {
+    const existing = await this.getUserInteraction(userId, novelId);
+    if (existing) {
+      await db.update(userInteractions).set(updates).where(
+        and(eq(userInteractions.userId, userId), eq(userInteractions.novelId, novelId))
+      );
+    } else {
+      await db.insert(userInteractions).values({
+        userId,
+        novelId,
+        ...updates
+      } as any);
+    }
   }
 }
 
