@@ -95,6 +95,12 @@ export function UserMenu() {
             <div className="text-xs text-muted-foreground font-normal">{user.email}</div>
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
+          <Link href={`/profile/${user.username}`}>
+            <DropdownMenuItem className="cursor-pointer gap-2" data-testid="link-my-profile">
+              <User className="h-4 w-4" />
+              ملفي الشخصي
+            </DropdownMenuItem>
+          </Link>
           <DropdownMenuItem
             className="cursor-pointer gap-2"
             onClick={() => {
@@ -103,9 +109,10 @@ export function UserMenu() {
               setUsername(user.username);
               setProfileOpen(true);
             }}
+            data-testid="button-edit-profile-menu"
           >
-            <User className="h-4 w-4" />
-            الملف الشخصي
+            <Settings2 className="h-4 w-4" />
+            تعديل الملف الشخصي
           </DropdownMenuItem>
           <Link href="/settings">
             <DropdownMenuItem className="cursor-pointer gap-2">

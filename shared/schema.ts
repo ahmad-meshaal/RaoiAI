@@ -15,6 +15,7 @@ export const users = pgTable("users", {
 
 export const novels = pgTable("novels", {
   id: serial("id").primaryKey(),
+  authorId: integer("author_id"),
   title: text("title").notNull(),
   genre: text("genre").notNull(),
   synopsis: text("synopsis"),
@@ -56,6 +57,13 @@ export const userInteractions = pgTable("user_interactions", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+export const follows = pgTable("follows", {
+  id: serial("id").primaryKey(),
+  followerId: integer("follower_id").notNull(),
+  followingId: integer("following_id").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 export const novelsRelations = relations(novels, ({ many }) => ({
   characters: many(characters),
   chapters: many(chapters),
@@ -89,6 +97,7 @@ export type InsertChapter = z.infer<typeof insertChapterSchema>;
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type UserInteraction = typeof userInteractions.$inferSelect;
+export type Follow = typeof follows.$inferSelect;
 
 export type CreateNovelRequest = InsertNovel;
 export type UpdateNovelRequest = Partial<InsertNovel>;

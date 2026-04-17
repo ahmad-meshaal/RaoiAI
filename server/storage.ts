@@ -1,12 +1,12 @@
 import { db } from "./db";
 import {
-  novels, characters, chapters, users, userInteractions,
+  novels, characters, chapters, users, userInteractions, follows,
   type Novel, type InsertNovel, type UpdateNovelRequest,
   type Character, type InsertCharacter, type UpdateCharacterRequest,
   type Chapter, type InsertChapter, type UpdateChapterRequest,
   type User, type InsertUser, type UserInteraction
 } from "@shared/schema";
-import { eq, desc, asc, and } from "drizzle-orm";
+import { eq, desc, asc, and, count, sql } from "drizzle-orm";
 
 export interface IStorage {
   // Users
@@ -37,9 +37,21 @@ export interface IStorage {
   updateChapter(id: number, chapter: UpdateChapterRequest): Promise<Chapter>;
   deleteChapter(id: number): Promise<void>;
   
+  getPublishedNovelsWithAuthors(): Promise<(Novel & { authorUsername: string | null })[]>;
+
   // Interactions
   getUserInteraction(userId: number, novelId: number): Promise<UserInteraction | undefined>;
   updateUserInteraction(userId: number, novelId: number, updates: Partial<UserInteraction>): Promise<void>;
+
+  // Follows
+  followUser(followerId: number, followingId: number): Promise<void>;
+  unfollowUser(followerId: number, followingId: number): Promise<void>;
+  isFollowing(followerId: number, followingId: number): Promise<boolean>;
+  getFollowerCount(userId: number): Promise<number>;
+  getFollowingCount(userId: number): Promise<number>;
+
+  // Profile
+  getUserPublishedNovels(userId: number): Promise<Novel[]>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -71,6 +83,29 @@ export class DatabaseStorage implements IStorage {
   // Novels
   async getNovels(): Promise<Novel[]> {
     return await db.select().from(novels).orderBy(desc(novels.createdAt));
+  }
+
+  async getPublishedNovelsWithAuthors(): Promise<(Novel & { authorUsername: string | null })[]> {
+    const rows = await db
+      .select({
+        id: novels.id,
+        authorId: novels.authorId,
+        title: novels.title,
+        genre: novels.genre,
+        synopsis: novels.synopsis,
+        coverUrl: novels.coverUrl,
+        views: novels.views,
+        likes: novels.likes,
+        dislikes: novels.dislikes,
+        status: novels.status,
+        createdAt: novels.createdAt,
+        authorUsername: users.username,
+      })
+      .from(novels)
+      .leftJoin(users, eq(novels.authorId, users.id))
+      .where(eq(novels.status, "published"))
+      .orderBy(desc(novels.createdAt));
+    return rows as any;
   }
 
   async getNovel(id: number): Promise<Novel | undefined> {
@@ -187,6 +222,46 @@ export class DatabaseStorage implements IStorage {
         ...updates
       } as any);
     }
+  }
+
+  // Follows
+  async followUser(followerId: number, followingId: number): Promise<void> {
+    const existing = await db.select().from(follows).where(
+      and(eq(follows.followerId, followerId), eq(follows.followingId, followingId))
+    );
+    if (existing.length === 0) {
+      await db.insert(follows).values({ followerId, followingId });
+    }
+  }
+
+  async unfollowUser(followerId: number, followingId: number): Promise<void> {
+    await db.delete(follows).where(
+      and(eq(follows.followerId, followerId), eq(follows.followingId, followingId))
+    );
+  }
+
+  async isFollowing(followerId: number, followingId: number): Promise<boolean> {
+    const [row] = await db.select().from(follows).where(
+      and(eq(follows.followerId, followerId), eq(follows.followingId, followingId))
+    );
+    return !!row;
+  }
+
+  async getFollowerCount(userId: number): Promise<number> {
+    const [row] = await db.select({ cnt: count() }).from(follows).where(eq(follows.followingId, userId));
+    return Number(row?.cnt ?? 0);
+  }
+
+  async getFollowingCount(userId: number): Promise<number> {
+    const [row] = await db.select({ cnt: count() }).from(follows).where(eq(follows.followerId, userId));
+    return Number(row?.cnt ?? 0);
+  }
+
+  // Profile
+  async getUserPublishedNovels(userId: number): Promise<Novel[]> {
+    return await db.select().from(novels)
+      .where(and(eq(novels.authorId, userId), eq(novels.status, "published")))
+      .orderBy(desc(novels.createdAt));
   }
 }
 

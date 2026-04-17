@@ -27,6 +27,11 @@ export async function registerRoutes(
     res.json(allNovels);
   });
 
+  app.get("/api/novels/published", async (req, res) => {
+    const novels = await storage.getPublishedNovelsWithAuthors();
+    res.json(novels);
+  });
+
   app.get(api.novels.get.path, async (req, res) => {
     const novel = await storage.getNovel(Number(req.params.id));
     if (!novel) return res.status(404).json({ message: "Novel not found" });
@@ -36,7 +41,8 @@ export async function registerRoutes(
   app.post(api.novels.create.path, async (req, res) => {
     try {
       const input = api.novels.create.input.parse(req.body);
-      const novel = await storage.createNovel(input);
+      const authorId = req.session?.userId ?? null;
+      const novel = await storage.createNovel({ ...input, authorId } as any);
       res.status(201).json(novel);
     } catch (err) {
       if (err instanceof z.ZodError) {
@@ -153,6 +159,59 @@ export async function registerRoutes(
       if (username !== undefined) updates.username = username;
       const user = await storage.updateUser(req.session.userId, updates as any);
       res.json({ id: user.id, username: user.username, email: user.email, avatarUrl: user.avatarUrl, bio: user.bio });
+    } catch (err) {
+      res.status(500).json({ message: (err as Error).message });
+    }
+  });
+
+  // User Profile
+  app.get("/api/users/:username/profile", async (req, res) => {
+    try {
+      const user = await storage.getUserByUsername(req.params.username);
+      if (!user) return res.status(404).json({ message: "المستخدم غير موجود" });
+      const [followerCount, followingCount, novels] = await Promise.all([
+        storage.getFollowerCount(user.id),
+        storage.getFollowingCount(user.id),
+        storage.getUserPublishedNovels(user.id),
+      ]);
+      const isFollowing = req.session?.userId
+        ? await storage.isFollowing(req.session.userId, user.id)
+        : false;
+      res.json({
+        id: user.id,
+        username: user.username,
+        avatarUrl: user.avatarUrl,
+        bio: user.bio,
+        followerCount,
+        followingCount,
+        isFollowing,
+        novels,
+      });
+    } catch (err) {
+      res.status(500).json({ message: (err as Error).message });
+    }
+  });
+
+  app.post("/api/users/:username/follow", async (req, res) => {
+    if (!req.session?.userId) return res.status(401).json({ message: "يجب تسجيل الدخول أولاً" });
+    try {
+      const target = await storage.getUserByUsername(req.params.username);
+      if (!target) return res.status(404).json({ message: "المستخدم غير موجود" });
+      if (target.id === req.session.userId) return res.status(400).json({ message: "لا يمكنك متابعة نفسك" });
+      await storage.followUser(req.session.userId, target.id);
+      res.status(204).send();
+    } catch (err) {
+      res.status(500).json({ message: (err as Error).message });
+    }
+  });
+
+  app.delete("/api/users/:username/follow", async (req, res) => {
+    if (!req.session?.userId) return res.status(401).json({ message: "يجب تسجيل الدخول أولاً" });
+    try {
+      const target = await storage.getUserByUsername(req.params.username);
+      if (!target) return res.status(404).json({ message: "المستخدم غير موجود" });
+      await storage.unfollowUser(req.session.userId, target.id);
+      res.status(204).send();
     } catch (err) {
       res.status(500).json({ message: (err as Error).message });
     }

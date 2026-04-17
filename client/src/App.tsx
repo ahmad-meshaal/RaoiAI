@@ -14,6 +14,7 @@ import Characters from "@/pages/Characters";
 import Export from "@/pages/Export";
 import Settings from "@/pages/Settings";
 import PublicNovels from "@/pages/PublicNovels";
+import Profile from "@/pages/Profile";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -28,6 +29,7 @@ function Router() {
       <Route path="/novels/:novelId/editor/:chapterId" component={Editor} />
       <Route path="/novels/:id/export" component={Export} />
       <Route path="/settings" component={Settings} />
+      <Route path="/profile/:username" component={Profile} />
       <Route component={NotFound} />
     </Switch>
   );
