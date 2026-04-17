@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { BookOpen, Loader } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useUser } from "@/context/UserContext";
 
 export default function Login() {
   const [username, setUsername] = useState("");
@@ -13,6 +14,7 @@ export default function Login() {
   const [isLoading, setIsLoading] = useState(false);
   const [, setLocation] = useLocation();
   const { toast } = useToast();
+  const { setUser } = useUser();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,7 +33,9 @@ export default function Login() {
         return;
       }
 
-      toast({ title: "نجح الدخول", description: "مرحباً بك!" });
+      const user = await res.json();
+      setUser(user);
+      toast({ title: "نجح الدخول", description: `مرحباً ${user.username}!` });
       setLocation("/");
     } catch (err) {
       toast({ title: "خطأ", description: "حدث خطأ في الاتصال", variant: "destructive" });

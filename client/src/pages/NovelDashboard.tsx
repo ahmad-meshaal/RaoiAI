@@ -1,6 +1,7 @@
 import { useNovel, useChapters, useCharacters, useCreateChapter, useDeleteNovel, useUpdateChapter, useUpdateNovel } from "@/hooks/use-novels";
 import { useGeneratePlot } from "@/hooks/use-ai";
 import { Layout } from "@/components/ui/Layout";
+import { ImageUploadWithAI } from "@/components/ImageUploadWithAI";
 import { LoadingPage, LoadingSpinner } from "@/components/ui/Loading";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -162,25 +163,15 @@ export default function NovelDashboard({ params }: { params: { id: string } }) {
                           placeholder="اكتب نبذة مشوقة عن روايتك هنا..."
                         />
                       </div>
-                      <div className="space-y-2">
-                        <Label className="text-right block">رابط صورة الغلاف</Label>
-                        <Input 
-                          value={publishData.coverUrl} 
-                          onChange={e => setPublishData(prev => ({ ...prev, coverUrl: e.target.value }))}
-                          placeholder="https://example.com/cover.jpg"
-                          className="text-left ltr"
-                        />
-                      </div>
-                      {publishData.coverUrl && (
-                        <div className="flex justify-center pt-2">
-                          <img 
-                            src={publishData.coverUrl} 
-                            alt="Preview" 
-                            className="w-24 h-36 object-cover rounded border shadow-sm"
-                            onError={(e) => (e.currentTarget.style.display = 'none')}
-                          />
-                        </div>
-                      )}
+                      <ImageUploadWithAI
+                        value={publishData.coverUrl}
+                        onChange={(url) => setPublishData(prev => ({ ...prev, coverUrl: url }))}
+                        label="غلاف الرواية"
+                        aiPromptHint="صف الغلاف الذي تريده للرواية"
+                        aiEndpoint="/api/ai/generate-cover"
+                        aiBody={{ title: publishData.title, genre: novel?.genre || "", synopsis: publishData.synopsis }}
+                        shape="rect"
+                      />
                     </div>
                     <DialogFooter className="sm:justify-start gap-2">
                       <Button 

@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { BookOpen, Loader } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useUser } from "@/context/UserContext";
 
 export default function Signup() {
   const [username, setUsername] = useState("");
@@ -15,6 +16,7 @@ export default function Signup() {
   const [isLoading, setIsLoading] = useState(false);
   const [, setLocation] = useLocation();
   const { toast } = useToast();
+  const { setUser } = useUser();
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,7 +41,9 @@ export default function Signup() {
         return;
       }
 
-      toast({ title: "نجح الإنشاء", description: "مرحباً بك! تم إنشاء الحساب" });
+      const user = await res.json();
+      setUser(user);
+      toast({ title: "نجح الإنشاء", description: `مرحباً ${user.username}! تم إنشاء حسابك` });
       setLocation("/");
     } catch (err) {
       toast({ title: "خطأ", description: "حدث خطأ في الاتصال", variant: "destructive" });

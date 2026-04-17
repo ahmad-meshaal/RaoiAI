@@ -22,10 +22,13 @@ Preferred communication style: Simple, everyday language.
 
 ### Pages
 - **Home** (`/`): Novel library listing all novels with create dialog
-- **NovelDashboard** (`/novels/:id`): Overview of a single novel with chapters, characters, and AI plot generation
+- **Login** (`/login`): User login page with Arabic RTL form
+- **Signup** (`/signup`): User registration page with username, email, password fields
+- **NovelDashboard** (`/novels/:id`): Overview of a single novel with chapters, characters, and AI plot generation; includes publish dialog with file upload + AI cover generation
 - **Characters** (`/novels/:id/characters`): Character management for a novel
 - **Editor** (`/novels/:novelId/editor/:chapterId`): Chapter text editor with auto-save (30s interval) and AI chapter generation
 - **Export** (`/novels/:id/export`): Print-ready view for PDF export using native browser print
+- **PublicNovels** (`/novels`): Public library of published novels with likes/views/dislikes
 - **Settings** (`/settings`): Dark mode toggle and app preferences
 
 ### Backend Architecture
@@ -38,13 +41,23 @@ Preferred communication style: Simple, everyday language.
 ### API Routes
 - `GET/POST /api/novels` — List/create novels
 - `GET/PUT/DELETE /api/novels/:id` — Get/update/delete novel
+- `POST /api/novels/:id/view|like|dislike` — Interaction stats
 - `GET/POST /api/novels/:id/characters` — List/create characters
 - `GET/PUT/DELETE /api/characters/:id` — Get/update/delete character
 - `GET/POST /api/novels/:id/chapters` — List/create chapters
 - `GET/PUT/DELETE /api/chapters/:id` — Get/update/delete chapter
 - `POST /api/ai/generate-plot` — AI plot generation
 - `POST /api/ai/generate-chapter` — AI chapter generation
-- `POST /api/generate-image` — AI image generation
+- `POST /api/generate-image` — General AI image generation
+- `POST /api/ai/generate-cover` — AI novel cover generation
+- `POST /api/ai/generate-avatar` — AI profile avatar generation
+- `POST /api/upload` — File upload (images), returns URL
+- `GET /uploads/:filename` — Serve uploaded files
+- `POST /api/auth/signup` — User registration
+- `POST /api/auth/login` — User login
+- `POST /api/auth/logout` — User logout
+- `GET /api/auth/me` — Get current user
+- `PATCH /api/auth/profile` — Update user profile (avatar, bio, username)
 - `/api/conversations/*` — Chat integration routes
 
 ### Database
@@ -53,9 +66,11 @@ Preferred communication style: Simple, everyday language.
 - **Schema location**: `shared/schema.ts`
 - **Migrations**: Drizzle Kit with `drizzle-kit push` command (`npm run db:push`)
 - **Tables**:
-  - `novels` — id, title, genre, synopsis, status, createdAt
+  - `users` — id, username, email, passwordHash, avatarUrl, bio, createdAt
+  - `novels` — id, title, genre, synopsis, coverUrl, views, likes, dislikes, status, createdAt
   - `characters` — id, novelId, name, role, traits, description, createdAt
   - `chapters` — id, novelId, title, sequenceNumber, content, outline, createdAt
+  - `user_interactions` — id, userId, novelId, viewed, liked, disliked, createdAt
   - `conversations` — id, title, createdAt (for AI chat integration)
   - `messages` — id, conversationId, role, content, createdAt (for AI chat integration)
 

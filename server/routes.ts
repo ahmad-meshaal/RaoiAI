@@ -1,13 +1,15 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { db } from "./db";
 import { api } from "@shared/routes";
 import { z } from "zod";
-import { novels } from "@shared/schema";
 import { generatePlot, generateChapter } from "./ai_service";
 import { registerChatRoutes } from "./replit_integrations/chat";
 import { registerImageRoutes } from "./replit_integrations/image";
+import { upload } from "./upload";
+import path from "path";
+import fs from "fs";
+import { openai } from "./replit_integrations/image/client";
 
 export async function registerRoutes(
   httpServer: Server,
@@ -77,6 +79,25 @@ export async function registerRoutes(
     res.status(204).send();
   });
 
+  // Serve uploaded files
+  app.use("/uploads", (req, res, next) => {
+    const filePath = path.join(process.cwd(), "uploads", path.basename(req.path));
+    if (fs.existsSync(filePath)) {
+      res.sendFile(filePath);
+    } else {
+      next();
+    }
+  });
+
+  // File upload endpoint
+  app.post("/api/upload", upload.single("file"), (req, res) => {
+    if (!req.file) {
+      return res.status(400).json({ message: "لم يتم رفع أي ملف" });
+    }
+    const url = `/uploads/${req.file.filename}`;
+    res.json({ url });
+  });
+
   // Auth Routes
   app.post("/api/auth/signup", async (req, res) => {
     try {
@@ -87,7 +108,7 @@ export async function registerRoutes(
       const { registerUser } = await import("./auth");
       const user = await registerUser(username, email, password);
       req.session!.userId = user.id;
-      res.status(201).json({ id: user.id, username: user.username, email: user.email });
+      res.status(201).json({ id: user.id, username: user.username, email: user.email, avatarUrl: user.avatarUrl });
     } catch (err) {
       res.status(400).json({ message: (err as Error).message });
     }
@@ -101,9 +122,9 @@ export async function registerRoutes(
       }
       const { loginUser } = await import("./auth");
       const user = await loginUser(username, password);
-      if (!user) return res.status(401).json({ message: "Invalid credentials" });
+      if (!user) return res.status(401).json({ message: "اسم المستخدم أو كلمة المرور غير صحيحة" });
       req.session!.userId = user.id;
-      res.json({ id: user.id, username: user.username, email: user.email });
+      res.json({ id: user.id, username: user.username, email: user.email, avatarUrl: user.avatarUrl, bio: user.bio });
     } catch (err) {
       res.status(500).json({ message: "Server error" });
     }
@@ -117,8 +138,64 @@ export async function registerRoutes(
 
   app.get("/api/auth/me", async (req, res) => {
     if (!req.session?.userId) return res.status(401).json({ message: "Not authenticated" });
-    const userId = req.session.userId;
-    res.json({ id: userId });
+    const user = await storage.getUserById(req.session.userId);
+    if (!user) return res.status(401).json({ message: "User not found" });
+    res.json({ id: user.id, username: user.username, email: user.email, avatarUrl: user.avatarUrl, bio: user.bio });
+  });
+
+  app.patch("/api/auth/profile", async (req, res) => {
+    if (!req.session?.userId) return res.status(401).json({ message: "Not authenticated" });
+    try {
+      const { avatarUrl, bio, username } = req.body;
+      const updates: Record<string, string> = {};
+      if (avatarUrl !== undefined) updates.avatarUrl = avatarUrl;
+      if (bio !== undefined) updates.bio = bio;
+      if (username !== undefined) updates.username = username;
+      const user = await storage.updateUser(req.session.userId, updates as any);
+      res.json({ id: user.id, username: user.username, email: user.email, avatarUrl: user.avatarUrl, bio: user.bio });
+    } catch (err) {
+      res.status(500).json({ message: (err as Error).message });
+    }
+  });
+
+  // AI Image generation for novel cover
+  app.post("/api/ai/generate-cover", async (req, res) => {
+    try {
+      const { title, genre, synopsis } = req.body;
+      if (!title) return res.status(400).json({ message: "عنوان الرواية مطلوب" });
+      const prompt = `Book cover for Arabic novel. Title: "${title}", Genre: "${genre || "fiction"}", Synopsis: "${synopsis || ""}". Style: dramatic, artistic, high quality, book cover design, vibrant colors, no text.`;
+      const response = await openai.images.generate({
+        model: "gpt-image-1",
+        prompt,
+        n: 1,
+        size: "1024x1024",
+      });
+      const imageData = response.data[0];
+      res.json({ url: imageData.url, b64_json: imageData.b64_json });
+    } catch (error) {
+      console.error("Cover generation error:", error);
+      res.status(500).json({ message: "فشل في توليد الغلاف" });
+    }
+  });
+
+  // AI Avatar generation
+  app.post("/api/ai/generate-avatar", async (req, res) => {
+    try {
+      const { description } = req.body;
+      if (!description) return res.status(400).json({ message: "الوصف مطلوب" });
+      const prompt = `Profile avatar portrait: ${description}. Style: artistic, high quality, clean background, professional portrait photo style.`;
+      const response = await openai.images.generate({
+        model: "gpt-image-1",
+        prompt,
+        n: 1,
+        size: "1024x1024",
+      });
+      const imageData = response.data[0];
+      res.json({ url: imageData.url, b64_json: imageData.b64_json });
+    } catch (error) {
+      console.error("Avatar generation error:", error);
+      res.status(500).json({ message: "فشل في توليد الصورة" });
+    }
   });
 
   // Characters
