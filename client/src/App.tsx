@@ -6,8 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { UserProvider } from "@/context/UserContext";
 
 import Home from "@/pages/Home";
-import Login from "@/pages/Login";
-import Signup from "@/pages/Signup";
+import Auth from "@/pages/Login";
 import NovelDashboard from "@/pages/NovelDashboard";
 import Editor from "@/pages/Editor";
 import Characters from "@/pages/Characters";
@@ -22,8 +21,8 @@ import NotFound from "@/pages/not-found";
 function Router() {
   return (
     <Switch>
-      <Route path="/login" component={Login} />
-      <Route path="/signup" component={Signup} />
+      <Route path="/login" component={Auth} />
+      <Route path="/signup" component={Auth} />
       <Route path="/" component={Home} />
       <Route path="/novels" component={PublicNovels} />
       <Route path="/novels/:id" component={NovelDashboard} />
