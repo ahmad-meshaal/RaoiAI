@@ -88,19 +88,19 @@ export default function NovelDashboard({ params }: { params: { id: string } }) {
     <Layout>
       <div className="min-h-screen pb-20">
         {/* Hero Header */}
-        <header className="bg-card border-b py-12 relative overflow-hidden">
+        <header className="bg-card border-b py-6 md:py-12 relative overflow-hidden">
           <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-primary via-primary/80 to-primary/40" />
-          <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-end gap-6 px-4 sm:px-6 lg:px-8">
-            <div className="flex gap-6 items-start">
+          <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-end gap-4 md:gap-6 px-4 sm:px-6 lg:px-8">
+            <div className="flex gap-3 md:gap-6 items-start">
               {novel.coverUrl && (
                 <img 
                   src={novel.coverUrl} 
                   alt={novel.title} 
-                  className="w-32 h-48 object-cover rounded-lg shadow-md border bg-muted"
+                  className="w-20 h-28 md:w-32 md:h-48 object-cover rounded-lg shadow-md border bg-muted flex-shrink-0"
                 />
               )}
-              <div>
-                <div className="flex items-center gap-2 mb-4">
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center flex-wrap gap-2 mb-2 md:mb-4">
                   <Link href="/" className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-1 text-sm ui-font">
                     الرئيسية <ChevronLeft className="h-3 w-3" />
                   </Link>
@@ -112,14 +112,14 @@ export default function NovelDashboard({ params }: { params: { id: string } }) {
                     </Badge>
                   )}
                 </div>
-                <h1 className="text-5xl font-bold text-foreground mb-4 leading-tight">{novel.title}</h1>
-                <p className="text-muted-foreground max-w-2xl text-lg leading-relaxed opacity-90">
+                <h1 className="text-2xl sm:text-3xl md:text-5xl font-bold text-foreground mb-2 md:mb-4 leading-tight">{novel.title}</h1>
+                <p className="text-muted-foreground max-w-2xl text-sm md:text-lg leading-relaxed opacity-90 line-clamp-2 md:line-clamp-none">
                   {novel.synopsis}
                 </p>
               </div>
             </div>
             
-            <div className="flex gap-3">
+            <div className="flex gap-3 flex-wrap">
               {novel.status === "published" ? (
                 <Button 
                   onClick={handleUnpublish}
@@ -209,32 +209,32 @@ export default function NovelDashboard({ params }: { params: { id: string } }) {
         </header>
 
         {/* Dashboard Grid */}
-        <div className="py-8">
+        <div className="py-4 md:py-8">
           <Tabs defaultValue="chapters" className="w-full">
-            <div className="flex items-center justify-between mb-8 overflow-x-auto pb-2">
-              <TabsList className="bg-muted/50 p-1 h-auto">
-                <TabsTrigger value="chapters" className="px-6 py-2.5 ui-font data-[state=active]:bg-card data-[state=active]:shadow-sm">
-                  <FileText className="h-4 w-4 ml-2" />
+            <div className="flex items-center justify-between mb-4 md:mb-8 overflow-x-auto pb-1 px-4 md:px-0">
+              <TabsList className="bg-muted/50 p-1 h-auto flex-shrink-0">
+                <TabsTrigger value="chapters" className="px-3 md:px-6 py-2 md:py-2.5 ui-font data-[state=active]:bg-card data-[state=active]:shadow-sm text-xs md:text-sm">
+                  <FileText className="h-3.5 w-3.5 md:h-4 md:w-4 ml-1 md:ml-2" />
                   الفصول
                 </TabsTrigger>
-                <TabsTrigger value="characters" className="px-6 py-2.5 ui-font data-[state=active]:bg-card data-[state=active]:shadow-sm">
-                  <Users className="h-4 w-4 ml-2" />
+                <TabsTrigger value="characters" className="px-3 md:px-6 py-2 md:py-2.5 ui-font data-[state=active]:bg-card data-[state=active]:shadow-sm text-xs md:text-sm">
+                  <Users className="h-3.5 w-3.5 md:h-4 md:w-4 ml-1 md:ml-2" />
                   الشخصيات
                 </TabsTrigger>
-                <TabsTrigger value="plot" className="px-6 py-2.5 ui-font data-[state=active]:bg-card data-[state=active]:shadow-sm">
-                  <Wand2 className="h-4 w-4 ml-2" />
+                <TabsTrigger value="plot" className="px-3 md:px-6 py-2 md:py-2.5 ui-font data-[state=active]:bg-card data-[state=active]:shadow-sm text-xs md:text-sm">
+                  <Wand2 className="h-3.5 w-3.5 md:h-4 md:w-4 ml-1 md:ml-2" />
                   التخطيط الذكي
                 </TabsTrigger>
               </TabsList>
             </div>
 
             <TabsContent value="chapters" className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-8 px-4 md:px-0">
                 {/* Chapter List */}
                 <div className="lg:col-span-2 space-y-4">
                   <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-2xl font-bold flex items-center gap-2">
-                      <BookOpen className="h-6 w-6 text-primary" />
+                    <h2 className="text-lg md:text-2xl font-bold flex items-center gap-2">
+                      <BookOpen className="h-5 w-5 md:h-6 md:w-6 text-primary" />
                       فصول الرواية
                     </h2>
                     <CreateChapterDialog novelId={id} nextSequence={(chapters?.length || 0) + 1} />
@@ -336,11 +336,11 @@ export default function NovelDashboard({ params }: { params: { id: string } }) {
               </div>
             </TabsContent>
 
-            <TabsContent value="characters" className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <TabsContent value="characters" className="animate-in fade-in slide-in-from-bottom-4 duration-500 px-4 md:px-0">
               <CharactersView novelId={id} />
             </TabsContent>
 
-            <TabsContent value="plot" className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <TabsContent value="plot" className="animate-in fade-in slide-in-from-bottom-4 duration-500 px-4 md:px-0">
               <AiPlotGenerator novel={novel} />
             </TabsContent>
           </Tabs>

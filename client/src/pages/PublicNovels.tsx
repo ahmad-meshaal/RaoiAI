@@ -26,10 +26,10 @@ export default function PublicNovels() {
 
   return (
     <Layout>
-      <div className="py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-        <div className="mb-12">
-          <h1 className="text-4xl font-bold text-foreground mb-2">مكتبة الروايات</h1>
-          <p className="text-muted-foreground text-lg">استكشف أحدث الروايات المنشورة من قبل كتابنا.</p>
+      <div className="py-6 md:py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+        <div className="mb-6 md:mb-12">
+          <h1 className="text-2xl md:text-4xl font-bold text-foreground mb-1 md:mb-2">مكتبة الروايات</h1>
+          <p className="text-muted-foreground text-sm md:text-lg">استكشف أحدث الروايات المنشورة من قبل كتابنا.</p>
         </div>
 
         {!novels || novels.length === 0 ? (
@@ -39,7 +39,7 @@ export default function PublicNovels() {
             <p className="text-muted-foreground">كن أول من ينشر روايته في المنصة!</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-8">
             {novels.map((novel) => (
               <Card
                 key={novel.id}
@@ -66,82 +66,64 @@ export default function PublicNovels() {
                   </div>
                 </div>
 
-                <CardContent className="flex-1 flex flex-col p-4 gap-3">
-                  {/* Author — الأهم */}
+                <CardContent className="flex-1 flex flex-col p-2 md:p-4 gap-2 md:gap-3">
+                  {/* Author */}
                   {novel.authorUsername ? (
                     <Link href={`/profile/${novel.authorUsername}`}>
                       <div
-                        className="flex items-center gap-2 group/author"
+                        className="flex items-center gap-1.5 group/author"
                         data-testid={`link-author-${novel.id}`}
                       >
-                        <Avatar className="h-8 w-8 border border-primary/20 flex-shrink-0">
+                        <Avatar className="h-6 w-6 md:h-8 md:w-8 border border-primary/20 flex-shrink-0">
                           <AvatarImage src={novel.authorAvatarUrl || undefined} />
-                          <AvatarFallback className="text-xs font-bold bg-primary/10 text-primary">
+                          <AvatarFallback className="text-[10px] font-bold bg-primary/10 text-primary">
                             {novel.authorUsername.charAt(0).toUpperCase()}
                           </AvatarFallback>
                         </Avatar>
-                        <div className="min-w-0">
-                          <p className="text-xs text-muted-foreground leading-none mb-0.5">الكاتب</p>
-                          <p className="text-sm font-semibold text-foreground group-hover/author:text-primary transition-colors truncate">
-                            {novel.authorUsername}
-                          </p>
-                        </div>
-                        <UserPlus className="h-3.5 w-3.5 text-muted-foreground/50 group-hover/author:text-primary transition-colors mr-auto flex-shrink-0" />
+                        <p className="text-xs font-medium text-muted-foreground group-hover/author:text-primary transition-colors truncate">
+                          {novel.authorUsername}
+                        </p>
                       </div>
                     </Link>
                   ) : (
-                    <div className="flex items-center gap-2">
-                      <Avatar className="h-8 w-8 border border-muted flex-shrink-0">
-                        <AvatarFallback className="text-xs bg-muted text-muted-foreground">؟</AvatarFallback>
+                    <div className="flex items-center gap-1.5">
+                      <Avatar className="h-6 w-6 md:h-8 md:w-8 border border-muted flex-shrink-0">
+                        <AvatarFallback className="text-[10px] bg-muted text-muted-foreground">؟</AvatarFallback>
                       </Avatar>
-                      <div>
-                        <p className="text-xs text-muted-foreground leading-none mb-0.5">الكاتب</p>
-                        <p className="text-sm font-semibold text-muted-foreground">مجهول</p>
-                      </div>
+                      <p className="text-xs text-muted-foreground">مجهول</p>
                     </div>
                   )}
 
-                  {/* Divider */}
-                  <div className="border-t border-border/50" />
-
                   {/* Title */}
-                  <h3 className="text-lg font-bold group-hover:text-primary transition-colors leading-tight line-clamp-2">
+                  <h3 className="text-sm md:text-lg font-bold group-hover:text-primary transition-colors leading-tight line-clamp-2">
                     {novel.title}
                   </h3>
 
-                  {/* Synopsis */}
-                  <p className="text-muted-foreground text-sm line-clamp-2 leading-relaxed flex-1">
+                  {/* Synopsis — hidden on mobile */}
+                  <p className="hidden md:block text-muted-foreground text-sm line-clamp-2 leading-relaxed flex-1">
                     {novel.synopsis || "لا يوجد ملخص متاح لهذه الرواية."}
                   </p>
 
-                  {/* Stats & Read Button */}
-                  <div className="flex items-center justify-between pt-2 border-t border-border/50">
-                    <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                      <span className="flex items-center gap-1" data-testid={`text-views-${novel.id}`}>
-                        <Eye className="h-3.5 w-3.5" />
+                  {/* Stats & Read */}
+                  <div className="flex items-center justify-between pt-1 md:pt-2 border-t border-border/50">
+                    <div className="flex items-center gap-1.5 md:gap-3 text-[10px] md:text-xs text-muted-foreground">
+                      <span className="flex items-center gap-0.5" data-testid={`text-views-${novel.id}`}>
+                        <Eye className="h-3 w-3" />
                         {novel.views || 0}
                       </span>
                       <button
                         onClick={() => handleAction(novel.id, "like")}
-                        className="flex items-center gap-1 hover:text-primary transition-colors"
+                        className="flex items-center gap-0.5 hover:text-primary transition-colors"
                         data-testid={`button-like-${novel.id}`}
                       >
-                        <ThumbsUp className="h-3.5 w-3.5" />
+                        <ThumbsUp className="h-3 w-3" />
                         {novel.likes || 0}
-                      </button>
-                      <button
-                        onClick={() => handleAction(novel.id, "dislike")}
-                        className="flex items-center gap-1 hover:text-destructive transition-colors"
-                        data-testid={`button-dislike-${novel.id}`}
-                      >
-                        <ThumbsDown className="h-3.5 w-3.5" />
-                        {novel.dislikes || 0}
                       </button>
                     </div>
 
                     <Link href={`/novels/${novel.id}/export`} onClick={() => handleAction(novel.id, "view")}>
-                      <Button size="sm" variant="ghost" className="text-primary hover:bg-primary/5 gap-1 h-8 px-2 text-xs" data-testid={`button-read-${novel.id}`}>
-                        <BookOpen className="h-3.5 w-3.5" />
+                      <Button size="sm" variant="ghost" className="text-primary hover:bg-primary/5 gap-0.5 h-7 px-1.5 text-[10px] md:text-xs" data-testid={`button-read-${novel.id}`}>
+                        <BookOpen className="h-3 w-3" />
                         اقرأ
                       </Button>
                     </Link>

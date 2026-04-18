@@ -21,11 +21,11 @@ export default function Home() {
 
   return (
     <Layout>
-      <div className="py-6 md:py-12 space-y-8">
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      <div className="py-4 md:py-12 px-4 md:px-0 space-y-6 md:space-y-8">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
           <div>
-            <div className="flex items-center gap-4">
-              <h1 className="text-4xl font-bold text-foreground mb-2">مكتبة الروايات</h1>
+            <div className="flex items-center gap-3">
+              <h1 className="text-2xl md:text-4xl font-bold text-foreground mb-1 md:mb-2">مكتبة الروايات</h1>
               <Link href="/settings">
                 <Button variant="ghost" size="icon" className="mt-[-8px]">
                   <SettingsIcon className="h-5 w-5" />

@@ -81,15 +81,15 @@ export default function Profile() {
 
   return (
     <Layout>
-      <div className="max-w-4xl mx-auto px-4 py-8">
-        {/* Header / Cover Banner */}
-        <div className="relative mb-6">
-          <div className="h-40 rounded-2xl bg-gradient-to-l from-primary/30 via-primary/10 to-background border border-primary/10" />
+      <div className="max-w-4xl mx-auto px-0 sm:px-4 py-0 sm:py-8">
+        {/* Cover Banner */}
+        <div className="relative mb-0">
+          <div className="h-28 sm:h-40 sm:rounded-2xl bg-gradient-to-l from-primary/30 via-primary/10 to-background border-b sm:border border-primary/10" />
           {/* Avatar */}
-          <div className="absolute -bottom-12 right-8">
-            <Avatar className="h-24 w-24 border-4 border-background shadow-xl">
+          <div className="absolute -bottom-10 right-4 sm:right-8">
+            <Avatar className="h-20 w-20 sm:h-24 sm:w-24 border-4 border-background shadow-xl">
               <AvatarImage src={profile.avatarUrl || undefined} alt={profile.username} />
-              <AvatarFallback className="text-3xl font-bold bg-primary text-primary-foreground">
+              <AvatarFallback className="text-2xl sm:text-3xl font-bold bg-primary text-primary-foreground">
                 {profile.username.charAt(0).toUpperCase()}
               </AvatarFallback>
             </Avatar>
@@ -97,96 +97,88 @@ export default function Profile() {
         </div>
 
         {/* Profile Info */}
-        <div className="pt-14 flex items-start justify-between gap-4 flex-wrap">
-          <div>
-            <h1
-              className="text-3xl font-bold text-foreground"
-              data-testid="text-profile-username"
-            >
-              {profile.username}
-            </h1>
-            {profile.bio && (
-              <p
-                className="text-muted-foreground mt-2 max-w-lg leading-relaxed"
-                data-testid="text-profile-bio"
+        <div className="px-4 sm:px-0 pt-14 sm:pt-14">
+          {/* Name + Follow row */}
+          <div className="flex items-start justify-between gap-3 flex-wrap">
+            <div className="flex-1 min-w-0">
+              <h1
+                className="text-2xl sm:text-3xl font-bold text-foreground truncate"
+                data-testid="text-profile-username"
               >
-                {profile.bio}
-              </p>
-            )}
+                {profile.username}
+              </h1>
+              {profile.bio && (
+                <p
+                  className="text-muted-foreground mt-1.5 text-sm sm:text-base max-w-lg leading-relaxed"
+                  data-testid="text-profile-bio"
+                >
+                  {profile.bio}
+                </p>
+              )}
+            </div>
 
-            {/* Stats */}
-            <div className="flex gap-6 mt-4 text-sm">
-              <div className="flex items-center gap-1.5 text-muted-foreground">
-                <Users className="h-4 w-4" />
-                <span className="font-bold text-foreground" data-testid="text-follower-count">
-                  {profile.followerCount.toLocaleString("ar")}
-                </span>
-                <span>متابع</span>
-              </div>
-              <div className="flex items-center gap-1.5 text-muted-foreground">
-                <UserCheck className="h-4 w-4" />
-                <span className="font-bold text-foreground" data-testid="text-following-count">
-                  {profile.followingCount.toLocaleString("ar")}
-                </span>
-                <span>يتابع</span>
-              </div>
-              <div className="flex items-center gap-1.5 text-muted-foreground">
-                <BookOpen className="h-4 w-4" />
-                <span className="font-bold text-foreground" data-testid="text-novel-count">
-                  {profile.novels.length}
-                </span>
-                <span>رواية</span>
-              </div>
+            {/* Follow / Edit Button */}
+            <div className="flex gap-2 flex-shrink-0 mt-1">
+              {isOwnProfile ? (
+                <Link href="/settings">
+                  <Button size="sm" variant="outline" data-testid="button-edit-profile">
+                    تعديل الملف
+                  </Button>
+                </Link>
+              ) : user ? (
+                <Button
+                  size="sm"
+                  variant={profile.isFollowing ? "outline" : "default"}
+                  className="gap-1.5"
+                  disabled={followMutation.isPending}
+                  data-testid="button-follow"
+                  onClick={() =>
+                    followMutation.mutate(profile.isFollowing ? "unfollow" : "follow")
+                  }
+                >
+                  {profile.isFollowing ? (
+                    <><UserMinus className="h-3.5 w-3.5" />إلغاء المتابعة</>
+                  ) : (
+                    <><UserPlus className="h-3.5 w-3.5" />متابعة</>
+                  )}
+                </Button>
+              ) : (
+                <Link href="/login">
+                  <Button size="sm" className="gap-1.5" data-testid="button-login-to-follow">
+                    <UserPlus className="h-3.5 w-3.5" />
+                    متابعة
+                  </Button>
+                </Link>
+              )}
             </div>
           </div>
 
-          {/* Follow / Edit Button */}
-          <div className="flex gap-2 mt-2">
-            {isOwnProfile ? (
-              <Link href="/settings">
-                <Button variant="outline" data-testid="button-edit-profile">
-                  تعديل الملف الشخصي
-                </Button>
-              </Link>
-            ) : user ? (
-              <Button
-                variant={profile.isFollowing ? "outline" : "default"}
-                className="gap-2"
-                disabled={followMutation.isPending}
-                data-testid="button-follow"
-                onClick={() =>
-                  followMutation.mutate(profile.isFollowing ? "unfollow" : "follow")
-                }
-              >
-                {profile.isFollowing ? (
-                  <>
-                    <UserMinus className="h-4 w-4" />
-                    إلغاء المتابعة
-                  </>
-                ) : (
-                  <>
-                    <UserPlus className="h-4 w-4" />
-                    متابعة
-                  </>
-                )}
-              </Button>
-            ) : (
-              <Link href="/login">
-                <Button className="gap-2" data-testid="button-login-to-follow">
-                  <UserPlus className="h-4 w-4" />
-                  متابعة
-                </Button>
-              </Link>
-            )}
+          {/* Stats row */}
+          <div className="flex gap-5 sm:gap-8 mt-4 text-sm border-y border-border/50 py-4">
+            <button className="flex flex-col items-center gap-0.5 sm:flex-row sm:items-center sm:gap-1.5 text-muted-foreground">
+              <span className="font-bold text-base sm:text-sm text-foreground" data-testid="text-follower-count">
+                {profile.followerCount.toLocaleString("ar")}
+              </span>
+              <span className="text-xs sm:text-sm">متابع</span>
+            </button>
+            <button className="flex flex-col items-center gap-0.5 sm:flex-row sm:items-center sm:gap-1.5 text-muted-foreground">
+              <span className="font-bold text-base sm:text-sm text-foreground" data-testid="text-following-count">
+                {profile.followingCount.toLocaleString("ar")}
+              </span>
+              <span className="text-xs sm:text-sm">يتابع</span>
+            </button>
+            <button className="flex flex-col items-center gap-0.5 sm:flex-row sm:items-center sm:gap-1.5 text-muted-foreground">
+              <span className="font-bold text-base sm:text-sm text-foreground" data-testid="text-novel-count">
+                {profile.novels.length}
+              </span>
+              <span className="text-xs sm:text-sm">رواية</span>
+            </button>
           </div>
         </div>
 
-        {/* Divider */}
-        <div className="border-t border-border mt-8 mb-6" />
-
         {/* Published Novels */}
-        <div>
-          <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
+        <div className="px-4 sm:px-0 mt-6">
+          <h2 className="text-lg sm:text-xl font-bold mb-4 flex items-center gap-2">
             <BookOpen className="h-5 w-5 text-primary" />
             الروايات المنشورة
           </h2>
