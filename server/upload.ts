@@ -28,8 +28,11 @@ const fileFilter = (_req: any, file: Express.Multer.File, cb: multer.FileFilterC
   }
 };
 
+export const memoryStorage = multer.memoryStorage();
+
 export const upload = multer({
-  storage,
+  storage: process.env.FIREBASE_API_KEY ? memoryStorage : storage,
   fileFilter,
   limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
 });
+

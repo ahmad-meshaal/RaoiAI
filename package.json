@@ -1,5 +1,5 @@
 {
-  "name": "rest-express",
+  "name": "rawi-ai",
   "version": "1.0.0",
   "type": "module",
   "license": "MIT",
@@ -52,6 +52,8 @@
     "embla-carousel-react": "^8.6.0",
     "express": "^5.2.1",
     "express-session": "^1.19.0",
+    "firebase": "^12.12.0",
+    "firebase-admin": "^13.8.0",
     "framer-motion": "^11.18.2",
     "html2canvas": "^1.4.1",
     "html2pdf.js": "^0.14.0",

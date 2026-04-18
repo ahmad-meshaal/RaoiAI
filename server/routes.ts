@@ -19,6 +19,11 @@ export async function registerRoutes(
   registerChatRoutes(app);
   registerImageRoutes(app);
 
+  // Health check for Render/Deployment
+  app.get("/health", (req, res) => {
+    res.json({ status: "ok", timestamp: new Date().toISOString() });
+  });
+
   // API Routes
   
   // Novels
@@ -96,12 +101,24 @@ export async function registerRoutes(
   });
 
   // File upload endpoint
-  app.post("/api/upload", upload.single("file"), (req, res) => {
+  app.post("/api/upload", upload.single("file"), async (req, res) => {
     if (!req.file) {
       return res.status(400).json({ message: "لم يتم رفع أي ملف" });
     }
-    const url = `/uploads/${req.file.filename}`;
-    res.json({ url });
+
+    try {
+      if (process.env.FIREBASE_API_KEY) {
+        const { uploadToFirebase } = await import("./firebase");
+        const url = await uploadToFirebase(req.file.buffer, req.file.originalname, req.file.mimetype);
+        return res.json({ url });
+      }
+
+      const url = `/uploads/${req.file.filename}`;
+      res.json({ url });
+    } catch (error) {
+      console.error("Upload error:", error);
+      res.status(500).json({ message: "فشل في رفع الملف" });
+    }
   });
 
   // Auth Routes
